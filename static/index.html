@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>API and Mashup Query Interface</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <h2>Query API and Mashup Database</h2>
+    <select id="queryType" onchange="updateForm()">
+        <option value="">Select Query Type</option>
+        <option value="apis/search-by-criteria">Search APIs by Criteria</option>
+        <option value="mashups/search-by-criteria">Search Mashups by Criteria</option>
+        <option value="apis/search-by-keywords">Search APIs by Keywords</option>
+        <option value="mashups/search-by-keywords">Search Mashups by Keywords</option>
+        <option value="apis/top-used">Top Used APIs</option>
+        <option value="mashups/top-api-rich">Top API-Rich Mashups</option>
+    </select>
+    <form id="queryForm" onsubmit="executeQuery(); return false;"></form>
+    <div id="results"></div>
+
+    <script>
+        function updateForm() {
+            const queryType = document.getElementById('queryType').value;
+            const form = document.getElementById('queryForm');
+            form.innerHTML = ''; // Clear current form
+
+            if (queryType.includes('top')) { // For top used APIs or top API-rich mashups
+                form.innerHTML = `<input type="number" id="k" placeholder="Enter K (e.g., 10)" required>
+                           <button type="submit">Query</button>`;
+            } else if (queryType.includes('keywords')) { // For keyword searches
+                form.innerHTML = `<input type="text" id="keywords" placeholder="Enter Keywords" required>
+                           <button type="submit">Query</button>`;
+            } else if (queryType === "apis/search-by-criteria") { // For API criteria searches
+                form.innerHTML = `<input type="text" id="updated_year" placeholder="Updated Year">
+                           <input type="text" id="protocols" placeholder="Protocols">
+                           <input type="text" id="category" placeholder="Category">
+                           <input type="number" id="min_rating" placeholder="Min Rating">
+                           <input type="number" id="max_rating" placeholder="Max Rating">
+                           <input type="text" id="tags" placeholder="Tags (comma-separated)">
+                           <button type="submit">Query</button>`;
+            } else if (queryType === "mashups/search-by-criteria") { // For Mashup criteria searches
+                form.innerHTML = `<input type="text" id="updated_year" placeholder="Updated Year">
+                           <input type="text" id="used_apis" placeholder="Used APIs (comma-separated)">
+                           <input type="text" id="tags" placeholder="Tags (comma-separated)">
+                           <button type="submit">Query</button>`;
+            }
+        }
+
+
+        function executeQuery() {
+            const queryType = document.getElementById('queryType').value;
+            let baseUrl = `http://127.0.0.1:8000/${queryType}`;
+            const params = new URLSearchParams(); // Use URLSearchParams for cleaner parameter management
+
+            // Populate data object based on form input
+            $('#queryForm :input').each(function () {
+                const input = $(this); // jQuery object
+                const value = input.val();
+                if (input.attr('id') && value.trim()) { // Check if the input has an id and a non-empty value
+                    params.append(input.attr('id'), value.trim()); // Append only non-empty values
+                }
+            });
+
+            // Construct the final URL with non-empty query parameters
+            const urlWithParams = `${baseUrl}?${params.toString()}`;
+
+            // Make the request and display results
+            fetch(urlWithParams)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('results').innerHTML =
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+
+    </script>
+</body>
+
+</html>
