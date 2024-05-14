@@ -45,8 +45,7 @@ Readme for local installation and testing
  Steps to run :
  # Install the requirements:
  pip3 install-r requirements.txt
- # Configure the location of your MongoDB database or use local database ( what i used for
- testing was the connection string : localhost:27017) :
+ # Configure the location of your MongoDB database or use local database ( what i used for testing was the connection string : localhost:27017) :
  export
  MONGODB_URL="mongodb+srv://<username>:<password>@<url>/<db>?retryWrites=true&w=
  majority"
